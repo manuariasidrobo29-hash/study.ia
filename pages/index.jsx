@@ -1,79 +1,53 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMessage = { role: "user", content: input };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput("");
-
-    const response = await fetch("/api/chat", {
+  const handleSend = async () => {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: newMessages }),
+      body: JSON.stringify({ message }),
     });
 
-    const data = await response.json();
-    const botMessage = { role: "assistant", content: data.reply };
-    setMessages([...newMessages, botMessage]);
+    const data = await res.json();
+    setResponse(data.reply);
   };
 
   return (
     <div style={{
-      fontFamily: "Arial, sans-serif",
-      backgroundColor: "#0b0c10",
-      color: "#ffffff",
-      minHeight: "100vh",
-      padding: "20px"
+      fontFamily: "Arial",
+      background: "#0f172a",
+      color: "white",
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"
     }}>
-      <h1 style={{ color: "#66fcf1" }}>🤖 STUDI.IA</h1>
-      <div style={{
-        backgroundColor: "#1f2833",
-        padding: "10px",
-        borderRadius: "10px",
-        marginBottom: "10px",
-        height: "60vh",
-        overflowY: "auto"
-      }}>
-        {messages.map((msg, index) => (
-          <p key={index} style={{ color: msg.role === "user" ? "#45a29e" : "#c5c6c7" }}>
-            <b>{msg.role === "user" ? "Tú" : "STUDI.IA"}:</b> {msg.content}
-          </p>
-        ))}
-      </div>
-
-      <div>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          style={{
-            width: "80%",
-            padding: "10px",
-            borderRadius: "5px",
-            border: "none",
-            marginRight: "10px"
-          }}
-          placeholder="Escribe tu mensaje..."
-        />
-        <button
-          onClick={sendMessage}
-          style={{
-            backgroundColor: "#45a29e",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer"
-          }}
-        >
-          Enviar
-        </button>
-      </div>
+      <h1>🤖 Bienvenido a STUDI.IA</h1>
+      <p>Tu asistente de inteligencia artificial</p>
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Escribe tu pregunta aquí..."
+        rows={4}
+        style={{ width: "300px", marginBottom: "10px", borderRadius: "10px", padding: "8px" }}
+      />
+      <button
+        onClick={handleSend}
+        style={{ background: "#2563eb", color: "white", border: "none", padding: "10px 20px", borderRadius: "8px" }}
+      >
+        Enviar
+      </button>
+      {response && (
+        <div style={{ marginTop: "20px", maxWidth: "400px", textAlign: "center" }}>
+          <strong>STUDI.IA:</strong>
+          <p>{response}</p>
+        </div>
+      )}
     </div>
   );
 }
+
